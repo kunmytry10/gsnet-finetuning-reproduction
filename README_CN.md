@@ -393,15 +393,24 @@ report_pngs/top50_rgb_overlay.png
 
 ## 展示图片
 
-建议保留三类结果图：
+**训练曲线**
 
-- 训练曲线
-- 不同 checkpoint 的 AP 对比图
-- official 与微调后权重的 RGB 抓取可视化对比图
+![训练曲线](gsnet_reproduction/assets/report/training_curves.png)
+
+**Top1 抓取**
+
+![Top1 抓取](gsnet_reproduction/assets/report/top1.png)
+
+**Top5 抓取**
+
+![Top5 抓取](gsnet_reproduction/assets/report/top5.png)
+
+**Top50 抓取**
+
+![Top50 抓取](gsnet_reproduction/assets/report/top50.png)
 
 ## 注意事项
 
-- 不要提交数据集、checkpoint、预测 dump 或 TensorBoard 日志。
 - 更换 GPU 后，优先重新编译自定义 CUDA 扩展。
 
 ## 致谢

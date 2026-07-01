@@ -390,15 +390,24 @@ Gripper color encodes predicted grasp score within each image:
 
 ## Figures
 
-Recommended report assets:
+**Training Curves**
 
-- training curves
-- AP comparison across checkpoints
-- official vs fine-tuned RGB grasp overlays
+![Training Curves](gsnet_reproduction/assets/report/training_curves.png)
+
+**Top1 Grasp**
+
+![Top1 Grasp](gsnet_reproduction/assets/report/top1.png)
+
+**Top5 Grasps**
+
+![Top5 Grasps](gsnet_reproduction/assets/report/top5.png)
+
+**Top50 Grasps**
+
+![Top50 Grasps](gsnet_reproduction/assets/report/top50.png)
 
 ## Notes
 
-- Do not commit datasets, checkpoints, prediction dumps, or TensorBoard logs.
 - For a new GPU, rebuild custom CUDA operators before training or evaluation.
 
 ## Acknowledgement
