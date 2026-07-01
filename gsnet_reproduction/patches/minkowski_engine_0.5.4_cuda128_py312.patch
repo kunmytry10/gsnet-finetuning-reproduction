@@ -1,0 +1,190 @@
+diff -ruN gsnet_me_patch_orig/MinkowskiEngine-0.5.4/MinkowskiEngine/MinkowskiCommon.py gsnet_me_patch_new/MinkowskiEngine-0.5.4/MinkowskiEngine/MinkowskiCommon.py
+--- gsnet_me_patch_orig/MinkowskiEngine-0.5.4/MinkowskiEngine/MinkowskiCommon.py	2026-06-18 15:53:04.972541720 +0800
++++ gsnet_me_patch_new/MinkowskiEngine-0.5.4/MinkowskiEngine/MinkowskiCommon.py	2026-06-18 15:53:04.976602332 +0800
+@@ -22,7 +22,7 @@
+ # Please cite "4D Spatio-Temporal ConvNets: Minkowski Convolutional Neural
+ # Networks", CVPR'19 (https://arxiv.org/abs/1904.08755) if you use any part
+ # of the code.
+-from collections import Sequence
++from collections.abc import Sequence
+ import numpy as np
+ from typing import Union
+ 
+diff -ruN gsnet_me_patch_orig/MinkowskiEngine-0.5.4/MinkowskiEngine/MinkowskiCoordinateManager.py gsnet_me_patch_new/MinkowskiEngine-0.5.4/MinkowskiEngine/MinkowskiCoordinateManager.py
+--- gsnet_me_patch_orig/MinkowskiEngine-0.5.4/MinkowskiEngine/MinkowskiCoordinateManager.py	2026-06-18 15:53:04.994755509 +0800
++++ gsnet_me_patch_new/MinkowskiEngine-0.5.4/MinkowskiEngine/MinkowskiCoordinateManager.py	2026-06-18 15:53:04.996415692 +0800
+@@ -24,7 +24,7 @@
+ # of the code.
+ import os
+ import numpy as np
+-from collections import Sequence
++from collections.abc import Sequence
+ from typing import Union, List, Tuple
+ import warnings
+ 
+diff -ruN gsnet_me_patch_orig/MinkowskiEngine-0.5.4/MinkowskiEngine/MinkowskiKernelGenerator.py gsnet_me_patch_new/MinkowskiEngine-0.5.4/MinkowskiEngine/MinkowskiKernelGenerator.py
+--- gsnet_me_patch_orig/MinkowskiEngine-0.5.4/MinkowskiEngine/MinkowskiKernelGenerator.py	2026-06-18 15:53:04.937393281 +0800
++++ gsnet_me_patch_new/MinkowskiEngine-0.5.4/MinkowskiEngine/MinkowskiKernelGenerator.py	2026-06-18 15:53:04.943027698 +0800
+@@ -23,7 +23,8 @@
+ # Networks", CVPR'19 (https://arxiv.org/abs/1904.08755) if you use any part
+ # of the code.
+ import math
+-from collections import Sequence, namedtuple
++from collections import namedtuple
++from collections.abc import Sequence
+ from functools import reduce
+ import numpy as np
+ from typing import Union
+diff -ruN gsnet_me_patch_orig/MinkowskiEngine-0.5.4/MinkowskiEngine/MinkowskiTensorField.py gsnet_me_patch_new/MinkowskiEngine-0.5.4/MinkowskiEngine/MinkowskiTensorField.py
+--- gsnet_me_patch_orig/MinkowskiEngine-0.5.4/MinkowskiEngine/MinkowskiTensorField.py	2026-06-18 15:53:05.003237038 +0800
++++ gsnet_me_patch_new/MinkowskiEngine-0.5.4/MinkowskiEngine/MinkowskiTensorField.py	2026-06-18 15:53:05.004374371 +0800
+@@ -23,7 +23,7 @@
+ # of the code.
+ import os
+ import numpy as np
+-from collections import Sequence
++from collections.abc import Sequence
+ from typing import Union, List, Tuple
+ 
+ import torch
+diff -ruN gsnet_me_patch_orig/MinkowskiEngine-0.5.4/MinkowskiEngine/utils/quantization.py gsnet_me_patch_new/MinkowskiEngine-0.5.4/MinkowskiEngine/utils/quantization.py
+--- gsnet_me_patch_orig/MinkowskiEngine-0.5.4/MinkowskiEngine/utils/quantization.py	2026-06-18 15:53:05.012510251 +0800
++++ gsnet_me_patch_new/MinkowskiEngine-0.5.4/MinkowskiEngine/utils/quantization.py	2026-06-18 15:53:05.014766683 +0800
+@@ -23,7 +23,7 @@
+ # of the code.
+ import torch
+ import numpy as np
+-from collections import Sequence
++from collections.abc import Sequence
+ import MinkowskiEngineBackend._C as MEB
+ from typing import Union, Tuple
+ from MinkowskiCommon import convert_to_int_list
+diff -ruN gsnet_me_patch_orig/MinkowskiEngine-0.5.4/src/3rdparty/concurrent_unordered_map.cuh gsnet_me_patch_new/MinkowskiEngine-0.5.4/src/3rdparty/concurrent_unordered_map.cuh
+--- gsnet_me_patch_orig/MinkowskiEngine-0.5.4/src/3rdparty/concurrent_unordered_map.cuh	2026-06-18 15:53:04.825182395 +0800
++++ gsnet_me_patch_new/MinkowskiEngine-0.5.4/src/3rdparty/concurrent_unordered_map.cuh	2026-06-18 15:53:04.829663018 +0800
+@@ -27,6 +27,9 @@
+ 
+ #include <thrust/pair.h>
+ #include <thrust/count.h>
++#include <thrust/remove.h>
++#include <thrust/unique.h>
++#include <thrust/execution_policy.h>
+ 
+ #include <functional>
+ #include <memory>
+diff -ruN gsnet_me_patch_orig/MinkowskiEngine-0.5.4/src/3rdparty/cudf/detail/nvtx/ranges.hpp gsnet_me_patch_new/MinkowskiEngine-0.5.4/src/3rdparty/cudf/detail/nvtx/ranges.hpp
+--- gsnet_me_patch_orig/MinkowskiEngine-0.5.4/src/3rdparty/cudf/detail/nvtx/ranges.hpp	2026-06-18 15:53:04.796030518 +0800
++++ gsnet_me_patch_new/MinkowskiEngine-0.5.4/src/3rdparty/cudf/detail/nvtx/ranges.hpp	2026-06-18 15:53:04.799638914 +0800
+@@ -1,54 +1,13 @@
+-/*
+- * Copyright (c) 2020, NVIDIA CORPORATION.
+- *
+- * Licensed under the Apache License, Version 2.0 (the "License");
+- * you may not use this file except in compliance with the License.
+- * You may obtain a copy of the License at
+- *
+- *     http://www.apache.org/licenses/LICENSE-2.0
+- *
+- * Unless required by applicable law or agreed to in writing, software
+- * distributed under the License is distributed on an "AS IS" BASIS,
+- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+- * See the License for the specific language governing permissions and
+- * limitations under the License.
+- */
+-
++/* Patched for CUDA 12.x: avoid vendored nvtx3 conflict with CUDA/CUB nvtx3. */
+ #pragma once
+-
+-#include "nvtx3.hpp"
+-
+ namespace cudf {
+-/**
+- * @brief Tag type for libcudf's NVTX domain.
+- *
+- */
+ struct libcudf_domain {
+-  static constexpr char const* name{"libcudf"};  ///< Name of the libcudf domain
++  static constexpr char const* name{"libcudf"};
++};
++struct thread_range {
++  thread_range() = default;
++  template <typename... Args>
++  explicit thread_range(Args&&...) {}
+ };
+-
+-/**
+- * @brief Alias for an NVTX range in the libcudf domain.
+- *
+- */
+-using thread_range = ::nvtx3::domain_thread_range<libcudf_domain>;
+-
+ }  // namespace cudf
+-
+-/**
+- * @brief Convenience macro for generating an NVTX range in the `libcudf` domain
+- * from the lifetime of a function.
+- *
+- * Uses the name of the immediately enclosing function returned by `__func__` to
+- * name the range.
+- *
+- * Example:
+- * ```
+- * void some_function(){
+- *    CUDF_FUNC_RANGE();
+- *    ...
+- * }
+- * ```
+- *
+- */
+-#define CUDF_FUNC_RANGE() NVTX3_FUNC_RANGE_IN(cudf::libcudf_domain)
++#define CUDF_FUNC_RANGE() do {} while (0)
+diff -ruN gsnet_me_patch_orig/MinkowskiEngine-0.5.4/src/coordinate_map_gpu.cu gsnet_me_patch_new/MinkowskiEngine-0.5.4/src/coordinate_map_gpu.cu
+--- gsnet_me_patch_orig/MinkowskiEngine-0.5.4/src/coordinate_map_gpu.cu	2026-06-18 15:53:04.853601321 +0800
++++ gsnet_me_patch_new/MinkowskiEngine-0.5.4/src/coordinate_map_gpu.cu	2026-06-18 15:53:04.856178986 +0800
+@@ -36,6 +36,8 @@
+ #include <thrust/iterator/counting_iterator.h>
+ #include <thrust/iterator/transform_iterator.h>
+ #include <thrust/sort.h>
++#include <thrust/remove.h>
++#include <thrust/unique.h>
+ 
+ namespace minkowski {
+ 
+diff -ruN gsnet_me_patch_orig/MinkowskiEngine-0.5.4/src/coordinate_map_gpu.cuh gsnet_me_patch_new/MinkowskiEngine-0.5.4/src/coordinate_map_gpu.cuh
+--- gsnet_me_patch_orig/MinkowskiEngine-0.5.4/src/coordinate_map_gpu.cuh	2026-06-18 15:53:04.881703114 +0800
++++ gsnet_me_patch_new/MinkowskiEngine-0.5.4/src/coordinate_map_gpu.cuh	2026-06-18 15:53:04.886831262 +0800
+@@ -136,9 +136,11 @@
+       LOG_DEBUG("Reserve map of",
+                 compute_hash_table_size(size, m_hashtable_occupancy),
+                 "for concurrent_unordered_map of size", size);
+-      m_map = map_type::create(
++      auto map = map_type::create(
+           compute_hash_table_size(size, m_hashtable_occupancy),
+           m_unused_element, m_unused_key, m_hasher, m_equal, m_map_allocator);
++      auto deleter = map.get_deleter();
++      m_map = std::shared_ptr<map_type>(map.release(), deleter);
+       LOG_DEBUG("Done concurrent_unordered_map creation");
+       CUDA_TRY(cudaStreamSynchronize(0));
+       m_capacity = size;
+diff -ruN gsnet_me_patch_orig/MinkowskiEngine-0.5.4/src/spmm.cu gsnet_me_patch_new/MinkowskiEngine-0.5.4/src/spmm.cu
+--- gsnet_me_patch_orig/MinkowskiEngine-0.5.4/src/spmm.cu	2026-06-18 15:53:04.906929219 +0800
++++ gsnet_me_patch_new/MinkowskiEngine-0.5.4/src/spmm.cu	2026-06-18 15:53:04.910342168 +0800
+@@ -30,11 +30,18 @@
+ #include <cusparse.h>
+ 
+ #include <ATen/cuda/CUDAContext.h>
++#include <ATen/ATen.h>
+ #include <ATen/cuda/CUDAUtils.h>
+ #include <c10/cuda/CUDACachingAllocator.h>
+ #include <torch/extension.h>
+ #include <torch/script.h>
+ 
++#include <thrust/execution_policy.h>
++#include <thrust/iterator/zip_iterator.h>
++#include <thrust/reduce.h>
++#include <thrust/sort.h>
++#include <thrust/tuple.h>
++
+ namespace minkowski {
+ 
+ #define BLOCK_SIZE 128

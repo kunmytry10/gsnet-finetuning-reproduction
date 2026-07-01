@@ -1,0 +1,83 @@
+diff --git a/knn/setup.py b/knn/setup.py
+index 9aa9803..d5be34d 100644
+--- a/knn/setup.py
++++ b/knn/setup.py
+@@ -27,7 +27,8 @@ def get_extensions():
+     extra_compile_args = {"cxx": []}
+     define_macros = []
+ 
+-    if torch.cuda.is_available() and CUDA_HOME is not None:
++    force_cuda = os.environ.get("FORCE_CUDA", "0") == "1"
++    if (torch.cuda.is_available() or force_cuda) and CUDA_HOME is not None:
+         extension = CUDAExtension
+         sources += source_cuda
+         define_macros += [("WITH_CUDA", None)]
+diff --git a/knn/src/cuda/vision.h b/knn/src/cuda/vision.h
+index 970267f..253419a 100644
+--- a/knn/src/cuda/vision.h
++++ b/knn/src/cuda/vision.h
+@@ -1,7 +1,7 @@
+ #pragma once
+ #include <torch/extension.h>
+-#include <THC/THC.h>
++#include <cuda_runtime.h>
+ 
+ void knn_device(float* ref_dev, int ref_width,
+     float* query_dev, int query_width,
+-    int height, int k, float* dist_dev, long* ind_dev, cudaStream_t stream);
+\ No newline at end of file
++    int height, int k, float* dist_dev, long* ind_dev, cudaStream_t stream);
+diff --git a/knn/src/knn.h b/knn/src/knn.h
+index 33367fd..0884386 100644
+--- a/knn/src/knn.h
++++ b/knn/src/knn.h
+@@ -3,8 +3,8 @@
+ 
+ #ifdef WITH_CUDA
+ #include "cuda/vision.h"
+-#include <THC/THC.h>
+-extern THCState *state;
++#include <ATen/cuda/CUDAContext.h>
++#include <c10/cuda/CUDACachingAllocator.h>
+ #endif
+ 
+ 
+@@ -20,9 +20,9 @@ int knn(at::Tensor& ref, at::Tensor& query, at::Tensor& idx)
+     ref_nb = ref.size(2);
+     query_nb = query.size(2);
+ 
+-    float *ref_dev = ref.data<float>();
+-    float *query_dev = query.data<float>();
+-    long *idx_dev = idx.data<long>();
++    float *ref_dev = ref.data_ptr<float>();
++    float *query_dev = query.data_ptr<float>();
++    long *idx_dev = idx.data_ptr<long>();
+ 
+ 
+ 
+@@ -30,7 +30,8 @@ int knn(at::Tensor& ref, at::Tensor& query, at::Tensor& idx)
+   if (ref.type().is_cuda()) {
+ #ifdef WITH_CUDA
+     // TODO raise error if not compiled with CUDA
+-    float *dist_dev = (float*)THCudaMalloc(state, ref_nb * query_nb * sizeof(float));
++    float *dist_dev = static_cast<float*>(
++        c10::cuda::CUDACachingAllocator::raw_alloc(ref_nb * query_nb * sizeof(float)));
+ 
+     for (int b = 0; b < batch; b++)
+     {
+@@ -39,13 +40,9 @@ int knn(at::Tensor& ref, at::Tensor& query, at::Tensor& idx)
+       knn_device(ref_dev + b * dim * ref_nb, ref_nb, query_dev + b * dim * query_nb, query_nb, dim, k,
+       dist_dev, idx_dev + b * k * query_nb, c10::cuda::getCurrentCUDAStream());
+     }
+-    THCudaFree(state, dist_dev);
++    c10::cuda::CUDACachingAllocator::raw_delete(dist_dev);
+     cudaError_t err = cudaGetLastError();
+-    if (err != cudaSuccess)
+-    {
+-        printf("error in knn: %s\n", cudaGetErrorString(err));
+-        THError("aborting");
+-    }
++    TORCH_CHECK(err == cudaSuccess, "error in knn: ", cudaGetErrorString(err));
+     return 1;
+ #else
+     AT_ERROR("Not compiled with GPU support");

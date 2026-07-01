@@ -1,0 +1,55 @@
+diff --git a/external/graspness_unofficial/test.py b/external/graspness_unofficial/test.py
+index 4d2627c..23ed922 100644
+--- a/external/graspness_unofficial/test.py
++++ b/external/graspness_unofficial/test.py
+@@ -8,6 +8,7 @@ from torch.utils.data import DataLoader
+ from graspnetAPI.graspnet_eval import GraspGroup, GraspNetEval
+ 
+ ROOT_DIR = os.path.dirname(os.path.abspath(__file__))
++sys.path.append(ROOT_DIR)
+ sys.path.append(os.path.join(ROOT_DIR, 'pointnet2'))
+ sys.path.append(os.path.join(ROOT_DIR, 'utils'))
+ sys.path.append(os.path.join(ROOT_DIR, 'models'))
+@@ -15,7 +16,7 @@ sys.path.append(os.path.join(ROOT_DIR, 'dataset'))
+ 
+ from models.graspnet import GraspNet, pred_decode
+ from dataset.graspnet_dataset import GraspNetDataset, minkowski_collate_fn
+-from utils.collision_detector import ModelFreeCollisionDetector
++from collision_detector import ModelFreeCollisionDetector
+ 
+ parser = argparse.ArgumentParser()
+ parser.add_argument('--dataset_root', default=None, required=True)
+@@ -23,6 +24,8 @@ parser.add_argument('--checkpoint_path', help='Model checkpoint path', default=N
+ parser.add_argument('--dump_dir', help='Dump dir to save outputs', default=None, required=True)
+ parser.add_argument('--seed_feat_dim', default=512, type=int, help='Point wise feature dim')
+ parser.add_argument('--camera', default='kinect', help='Camera split [realsense/kinect]')
++parser.add_argument('--split', default='test_seen', choices=['test_seen', 'test_similar', 'test_novel'],
++                    help='GraspNet eval split [test_seen/test_similar/test_novel]')
+ parser.add_argument('--num_point', type=int, default=15000, help='Point Number [default: 15000]')
+ parser.add_argument('--batch_size', type=int, default=1, help='Batch Size during inference [default: 1]')
+ parser.add_argument('--voxel_size', type=float, default=0.005, help='Voxel Size for sparse convolution')
+@@ -45,7 +48,7 @@ def my_worker_init_fn(worker_id):
+ 
+ 
+ def inference():
+-    test_dataset = GraspNetDataset(cfgs.dataset_root, split='test_seen', camera=cfgs.camera, num_points=cfgs.num_point,
++    test_dataset = GraspNetDataset(cfgs.dataset_root, split=cfgs.split, camera=cfgs.camera, num_points=cfgs.num_point,
+                                    voxel_size=cfgs.voxel_size, remove_outlier=True, augment=False, load_label=False)
+     print('Test dataset length: ', len(test_dataset))
+     scene_list = test_dataset.scene_list()
+@@ -106,8 +109,13 @@ def inference():
+ 
+ 
+ def evaluate(dump_dir):
+-    ge = GraspNetEval(root=cfgs.dataset_root, camera=cfgs.camera, split='test_seen')
+-    res, ap = ge.eval_seen(dump_folder=dump_dir, proc=6)
++    ge = GraspNetEval(root=cfgs.dataset_root, camera=cfgs.camera, split=cfgs.split)
++    eval_fn = {
++        'test_seen': ge.eval_seen,
++        'test_similar': ge.eval_similar,
++        'test_novel': ge.eval_novel,
++    }[cfgs.split]
++    res, ap = eval_fn(dump_folder=dump_dir, proc=6)
+     save_dir = os.path.join(cfgs.dump_dir, 'ap_{}.npy'.format(cfgs.camera))
+     np.save(save_dir, res)
+ 
